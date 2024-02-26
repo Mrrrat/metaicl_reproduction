@@ -29,7 +29,7 @@ def save_results_nirvana():
 
 class MetaICLModel(object):
 
-    def __init__(self, logger=None, out_dir=None, fp16=True, local_rank=-1):
+    def __init__(self, logger=None, out_dir=None, dtype="bfloat16", local_rank=-1):
         if logger is None:
             class Logger():
                 def info(self, text):
@@ -38,7 +38,7 @@ class MetaICLModel(object):
 
         self.logger = logger
         self.out_dir = out_dir
-        self.fp16 = fp16
+        self.dtype = dtype
         self.local_rank = local_rank
 
         if self.local_rank == -1:
@@ -187,7 +187,7 @@ class MetaICLModel(object):
         else:
             raise NotImplementedError()
 
-        if self.fp16:
+        if self.dtype == "bfloat16" or self.dtype == "float16":
             self.scaler = torch.cuda.amp.GradScaler()
 
         self.optimizer = optimizer
@@ -236,7 +236,7 @@ class MetaICLModel(object):
                     break
                 train_losses.append(loss.detach().cpu())
 
-                if self.fp16:
+                if self.dtype == "bfloat16" or self.dtype == "float16":
                     self.scaler.scale(loss).backward()
                 else:
                     loss.backward()
@@ -314,17 +314,17 @@ class MetaICLModel(object):
 
         return torch.sum(losses, axis=1) / torch.sum(label_mask, axis=1)
 
-def setup_fp16(model, optimizer):
-    try:
-        import apex
-        from apex import amp
-        apex.amp.register_half_function(torch, "einsum")
-    except ImportError:
-        raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use fp16 training.")
+# def setup_fp16(model, optimizer):
+#     try:
+#         import apex
+#         from apex import amp
+#         apex.amp.register_half_function(torch, "einsum")
+#     except ImportError:
+#         raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use fp16 training.")
 
-    fp16_opt_level = "O1"
-    model, optimizer = amp.initialize(model, optimizer, opt_level=fp16_opt_level)
-    return model, optimizer
+#     fp16_opt_level = "O1"
+#     model, optimizer = amp.initialize(model, optimizer, opt_level=fp16_opt_level)
+#     return model, optimizer
 
 
 
