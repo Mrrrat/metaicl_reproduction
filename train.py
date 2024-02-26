@@ -92,7 +92,7 @@ def main(logger, args):
     metaicl_model.load(args.init_checkpoint, args.gpt2)
     metaicl_model.to_device()
     metaicl_model.setup_optimizer(args.optimization, num_training_steps, args.lr,
-                                  args.weight_decay, args.warmup_steps)
+                                 args.weight_decay, args.warmup_steps)
     metaicl_model.parallel()
     metaicl_model.train()
     metaicl_model.do_train(metaicl_data, args.batch_size, num_training_steps, save_period, log_period)
@@ -127,7 +127,7 @@ if __name__=='__main__':
     parser.add_argument("--gpt2", type=str, default="gpt2-large")
 
     parser.add_argument("--optimization", type=str, default="adamw")
-    parser.add_argument("--fp16", default=False, action="store_true")
+    parser.add_argument("--dtype", type=str, default="bfloat16", choices=["bfloat16", "float16", "float32"])
     # parser.add_argument("--local-rank", "--local_rank", type=int, default=-1, help="local_rank for distributed training on gpus")
 
     # wandb args
