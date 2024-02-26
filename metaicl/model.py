@@ -94,8 +94,12 @@ class MetaICLModel(object):
         '''
         checkpoint can be either keyword of the model or path to the checkpoint file
         '''
-
-        self.dtype = torch.float16 if self.fp16 else torch.float32
+        if self.dtype == "float16":
+            self.dtype = torch.float16
+        elif self.dtype == "bfloat16":
+            self.dtype = torch.bfloat16
+        else:
+            self.dtype = torch.float32
         if checkpoint is not None and checkpoint.startswith("gpt"):
             gpt2 = checkpoint
             checkpoint = None
@@ -132,7 +136,7 @@ class MetaICLModel(object):
             else:
                 model = AutoModelForCausalLM.from_pretrained(gpt2,
                                                              # device_map='auto',
-                                                             torch_dtype=self.dtype,
+                                                             torch_dtype=self.dtype
                                                              )
         self.model = model
 
