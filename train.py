@@ -88,7 +88,7 @@ def main(logger, args):
     if args.local_rank<=0 and not os.path.exists(args.out_dir):
         os.makedirs(args.out_dir)
 
-    metaicl_model = MetaICLModel(logger, args.out_dir, args.fp16, args.local_rank)
+    metaicl_model = MetaICLModel(logger, args.out_dir, args.dtype, args.local_rank)
     metaicl_model.load(args.init_checkpoint, args.gpt2)
     metaicl_model.to_device()
     metaicl_model.setup_optimizer(args.optimization, num_training_steps, args.lr,
@@ -151,8 +151,7 @@ if __name__=='__main__':
     if args.run_name is None:
         model_name = args.gpt2.split('/')[-1].replace('-', '_')
         args.run_name = f"{args.task}-{model_name}-{args.method}"
-        if args.fp16:
-            args.run_name += '-fp_16'
+        args.run_name += f"_{args.dtype}_"
         if args.optimization != 'adamw':
             args.run_name += f"-{args.optimization.replace('-', '_')}"
         args.run_name += f"-bs_{args.batch_size}"
