@@ -187,7 +187,7 @@ class MetaICLModel(object):
         else:
             raise NotImplementedError()
 
-        if self.dtype == "bfloat16" or self.dtype == "float16":
+        if self.dtype == "float16":
             self.scaler = torch.cuda.amp.GradScaler()
 
         self.optimizer = optimizer
@@ -236,7 +236,7 @@ class MetaICLModel(object):
                     break
                 train_losses.append(loss.detach().cpu())
 
-                if self.dtype == "bfloat16" or self.dtype == "float16":
+                if self.dtype == "float16":
                     self.scaler.scale(loss).backward()
                 else:
                     loss.backward()
