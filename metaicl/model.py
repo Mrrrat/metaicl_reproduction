@@ -142,7 +142,9 @@ class MetaICLModel(object):
                 )
                 model = AutoModelForCausalLM.from_pretrained(gpt2,
                                                              quantization_config=bnb_config,
-                                                             trust_remote_code=True
+                                                             trust_remote_code=True,
+                                                             low_cpu_mem_usage=True,
+                                                             device_map="auto"
                                                              )
         self.model = model
 
