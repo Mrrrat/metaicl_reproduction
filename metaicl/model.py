@@ -13,7 +13,7 @@ import wandb
 from tqdm import tqdm
 from transformers import Adafactor, get_linear_schedule_with_warmup
 from torch.optim import AdamW
-from transformers import AutoModelForCausalLM
+from transformers import AutoModelForCausalLM, BitsAndBytesConfig
 
 from utils.utils import get_checkpoint_id, download_file
 try:
@@ -134,9 +134,15 @@ class MetaICLModel(object):
                 state_dict = torch.load(checkpoint)
                 model = AutoModelForCausalLM.from_pretrained(gpt2, torch_dtype=self.dtype, state_dict=state_dict)
             else:
+                bnb_config = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_quant_type="nf4",
+                    bnb_4bit_compute_dtype=self.dtype,
+                    bnb_4bit_use_double_quant=True,
+                )
                 model = AutoModelForCausalLM.from_pretrained(gpt2,
-                                                             # device_map='auto',
-                                                             torch_dtype=self.dtype
+                                                             quantization_config=bnb_config,
+                                                             trust_remote_code=True
                                                              )
         self.model = model
 
